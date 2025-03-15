@@ -15,7 +15,6 @@ def model_training(cfg: DictConfig):
         cfg.unique_id = datetime.now().strftime("%m-%d-%H-%M-%S")
 
     dataloaders = dataset_factory(cfg)
-    ta,v,te = dataloaders
 
     logger = logger_factory(cfg)
     model = model_factory(cfg)

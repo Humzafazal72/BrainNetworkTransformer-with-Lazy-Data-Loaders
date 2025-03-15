@@ -28,8 +28,6 @@ class Train:
         self.config = cfg
         self.logger = logger
         self.model = model
-        self.checkpoints = torch.load('/home/faizan/CODES/BrainNetworkTransformer/result/ENTIRE/model_all.pt') 
-        self.model.load_state_dict(self.checkpoints)
         self.logger.info(f'#model params: {count_params(self.model)}')
         self.train_dataloader, self.val_dataloader, self.test_dataloader = dataloaders
         self.epochs = cfg.training.epochs
