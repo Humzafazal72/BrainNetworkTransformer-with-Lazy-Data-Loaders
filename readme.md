@@ -1,6 +1,6 @@
 # Brain Network Transformer with Lazy DataLoader
 
-This implementation of Brain Network Transformer adds Lazy dataloader which you can use load and train your own dataset without running into memory issues. 
+This implementation of the Brain Network Transformer (BNT) introduces Lazy Dataloaders, enabling efficient training on custom datasets while minimizing memory usage.
 
 ## Usage
 
