@@ -9,7 +9,7 @@ This implementation of the Brain Network Transformer (BNT) introduces Lazy Datal
 2. Run the following command to train the model.
 
 ```bash
-python -m source --multirun datasz=100p model=bnt,fbnetgen,brainnetcnn,transformer dataset=custom 
+python -m source --multirun model=bnt dataset=custom 
 ```
 
 - **model**, default=(bnt,fbnetgen,brainnetcnn,transformer). Which model to use. The value is a list of model names. For example, bnt means Brain Network Transformer, fbnetgen means FBNetGen, brainnetcnn means BrainNetCNN, transformer means VanillaTF.
