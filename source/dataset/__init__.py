@@ -16,13 +16,12 @@ def dataset_factory(cfg: DictConfig) -> List[utils.data.DataLoader]:
         node_sz = int(input("Enter the total number of nodes: "))
         node_feature_sz = int(input("Enter the node features size: "))
         timeseries_sz = int(input("Enter the raw timeseries size: "))
-        loc = input("Enter the dataset path: ")
 
         with open_dict(cfg):
             cfg.dataset.node_sz, cfg.dataset.node_feature_sz = (node_sz,node_feature_sz)
             cfg.dataset.timeseries_sz = timeseries_sz
     
-        dataloaders = create_stratified_lazy_dataloaders(cfg, loc)
+        dataloaders = create_stratified_lazy_dataloaders(cfg, cfg.dataset.path)
 
         return dataloaders
 
