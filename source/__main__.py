@@ -15,14 +15,17 @@ def model_training(cfg: DictConfig):
         cfg.unique_id = datetime.now().strftime("%m-%d-%H-%M-%S")
 
     dataloaders = dataset_factory(cfg)
+    ta,v,te = dataloaders
+
     logger = logger_factory(cfg)
     model = model_factory(cfg)
     optimizers = optimizers_factory(
-        model=model, optimizer_configs=cfg.optimizer)
+      model=model, optimizer_configs=cfg.optimizer)
     lr_schedulers = lr_scheduler_factory(lr_configs=cfg.optimizer,
-                                         cfg=cfg)
+                                       cfg=cfg)
+    
     training = training_factory(cfg, model, optimizers,
-                                lr_schedulers, dataloaders, logger)
+                              lr_schedulers, dataloaders, logger)
 
     training.train()
 
@@ -35,11 +38,11 @@ def main(cfg: DictConfig):
     # _{cfg.optimizer[0].lr_scheduler.mode}"
 
     for _ in range(cfg.repeat_time):
-        run = wandb.init(project=cfg.project, entity=cfg.wandb_entity, reinit=True,
-                         group=f"{group_name}", tags=[f"{cfg.dataset.name}"])
+        #run = wandb.init(project=cfg.project, entity=cfg.wandb_entity, reinit=True,
+        #                 group=f"{group_name}", tags=[f"{cfg.dataset.name}"])
         model_training(cfg)
 
-        run.finish()
+        #run.finish()
 
 
 if __name__ == '__main__':

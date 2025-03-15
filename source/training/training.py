@@ -1,8 +1,10 @@
 from source.utils import accuracy, TotalMeter, count_params, isfloat
+from source.dataset.preprocess import StandardScaler
 import torch
 import numpy as np
 from pathlib import Path
 import torch.nn.functional as F
+from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import precision_recall_fscore_support, classification_report
 from source.utils import continus_mixup_data
@@ -26,6 +28,8 @@ class Train:
         self.config = cfg
         self.logger = logger
         self.model = model
+        self.checkpoints = torch.load('/home/faizan/CODES/BrainNetworkTransformer/result/ENTIRE/model_all.pt') 
+        self.model.load_state_dict(self.checkpoints)
         self.logger.info(f'#model params: {count_params(self.model)}')
         self.train_dataloader, self.val_dataloader, self.test_dataloader = dataloaders
         self.epochs = cfg.training.epochs
@@ -53,13 +57,17 @@ class Train:
     def train_per_epoch(self, optimizer, lr_scheduler):
         self.model.train()
 
-        for time_series, node_feature, label in self.train_dataloader:
+        for timeseires, node_feature, label in tqdm(self.train_dataloader):
             label = label.float()
             self.current_step += 1
 
             lr_scheduler.update(optimizer=optimizer, step=self.current_step)
 
-            time_series, node_feature, label = time_series.cuda(), node_feature.cuda(), label.cuda()
+            scaler = StandardScaler(mean=torch.mean(
+                    timeseires), std=torch.std(timeseires))
+
+            timeseires = scaler.transform(timeseires)
+            time_series, node_feature, label = timeseires.cuda(), node_feature.cuda(), label.cuda()
 
             if self.config.preprocess.continus:
                 time_series, node_feature, label = continus_mixup_data(
@@ -85,6 +93,12 @@ class Train:
         self.model.eval()
 
         for time_series, node_feature, label in dataloader:
+            scaler = StandardScaler(mean=torch.mean(
+                    time_series), std=torch.std(time_series))
+
+            time_series = scaler.transform(time_series)
+            
+
             time_series, node_feature, label = time_series.cuda(), node_feature.cuda(), label.cuda()
             output = self.model(time_series, node_feature)
 
@@ -123,6 +137,7 @@ class Train:
 
         for time_series, node_feature, label in self.test_dataloader:
             label = label.long()
+            
             time_series, node_feature, label = time_series.cuda(), node_feature.cuda(), label.cuda()
             _, learable_matrix, _ = self.model(time_series, node_feature)
 
@@ -164,19 +179,19 @@ class Train:
                 f'LR:{self.lr_schedulers[0].lr:.4f}'
             ]))
 
-            wandb.log({
-                "Train Loss": self.train_loss.avg,
-                "Train Accuracy": self.train_accuracy.avg,
-                "Test Loss": self.test_loss.avg,
-                "Test Accuracy": self.test_accuracy.avg,
-                "Val AUC": val_result[0],
-                "Test AUC": test_result[0],
-                'Test Sensitivity': test_result[-1],
-                'Test Specificity': test_result[-2],
-                'micro F1': test_result[-4],
-                'micro recall': test_result[-5],
-                'micro precision': test_result[-6],
-            })
+            #wandb.log({
+            #    "Train Loss": self.train_loss.avg,
+            #    "Train Accuracy": self.train_accuracy.avg,
+            #    "Test Loss": self.test_loss.avg,
+            #    "Test Accuracy": self.test_accuracy.avg,
+            #    "Val AUC": val_result[0],
+            #    "Test AUC": test_result[0],
+            #    'Test Sensitivity': test_result[-1],
+            #    'Test Specificity': test_result[-2],
+            #    'micro F1': test_result[-4],
+            #    'micro recall': test_result[-5],
+            #    'micro precision': test_result[-6],
+            #})
 
             training_process.append({
                 "Epoch": epoch,

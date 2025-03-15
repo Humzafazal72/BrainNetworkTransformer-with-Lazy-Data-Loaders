@@ -17,7 +17,7 @@ class TransPoolingEncoder(nn.Module):
 
     def __init__(self, input_feature_size, input_node_num, hidden_size, output_node_num, pooling=True, orthogonal=True, freeze_center=False, project_assignment=True):
         super().__init__()
-        self.transformer = InterpretableTransformerEncoder(d_model=input_feature_size, nhead=4,
+        self.transformer = InterpretableTransformerEncoder(d_model=input_feature_size, nhead=2,
                                                            dim_feedforward=hidden_size,
                                                            batch_first=True)
 
